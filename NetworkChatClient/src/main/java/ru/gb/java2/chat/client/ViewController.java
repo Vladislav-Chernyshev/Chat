@@ -26,7 +26,6 @@ public class ViewController {
     @FXML
     private TextArea messageTextArea;
 
-    private ru.gb.java2.chat.client.Network network;
     private ClientChat application;
 
     @FXML
@@ -51,7 +50,7 @@ public class ViewController {
 
         try {
             message = sender != null ? String.join(": ", sender, message) : message;
-            Network.getInstance().sendMassage(message);
+            Network.getInstance().sendMessage(message);
         } catch (IOException e) {
             application.showNetworkErrorDialog("Ошибка передачи данных по сети", "Не удалось отправить сообщение!");
         }
@@ -86,7 +85,7 @@ public class ViewController {
     }
 
     public void initMessageHandler() {
-        Network.getInstance().waitMassages(message -> Platform.runLater(() -> {
+        Network.getInstance().waitMessages(message -> Platform.runLater(() -> {
             ViewController.this.appendMessageToChat("Server", message);
         }));
     }

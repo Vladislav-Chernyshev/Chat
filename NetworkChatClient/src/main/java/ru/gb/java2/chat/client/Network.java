@@ -50,16 +50,16 @@ public class Network {
         }
     }
 
-    public void sendMassage(String massage) throws IOException {
+    public void sendMessage(String message) throws IOException {
         try {
-            socketOutput.writeUTF(massage);
+            socketOutput.writeUTF(message);
         } catch (IOException e) {
             System.err.println("Failed to send message to server");
             throw e;
         }
     }
 
-    public void waitMassages(Consumer<String> massageHandler) {
+    public void waitMessages(Consumer<String> messageHandler) {
         Thread thread = new Thread(() -> {
             while (true) {
                 try {
@@ -67,7 +67,7 @@ public class Network {
                         break;
                     }
                     String massage = socketInput.readUTF();
-                    massageHandler.accept(massage);
+                    messageHandler.accept(massage);
 
                 } catch (IOException e) {
                     System.err.println("Failed to read massage from server");

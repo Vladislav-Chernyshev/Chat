@@ -18,6 +18,7 @@ public class AuthController {
     private static final String INVALID_CREDENTIALS = "Некорректный ввод данных";
     private static final String AUTH_COMMAND = "/auth";
     private static final String AUTH_OK_COMMAND = "/authOk";
+    private static final String AUTH_NOT_OK_COMMAND = "/authNotOk";
 
 
     @FXML
@@ -43,7 +44,7 @@ public class AuthController {
 
         String authCommandMessage = String.format("%s %s %s", AUTH_COMMAND, login, password);
         try {
-            Network.getInstance().sendMassage(authCommandMessage);
+            Network.getInstance().sendMessage(authCommandMessage);
         } catch (IOException e) {
             clientChat.showNetworkErrorDialog("Ошибка передачи данных по сети", "Не удалось отправить сообщение!");
             e.printStackTrace();
@@ -57,7 +58,7 @@ public class AuthController {
     }
 
     public void initMessageHandler() {
-        Network.getInstance().waitMassages(new Consumer<String>() {
+        Network.getInstance().waitMessages(new Consumer<String>() {
             @Override
             public void accept(String message) {
 
@@ -70,6 +71,11 @@ public class AuthController {
                         clientChat.getChatStage().setTitle(username);
                         clientChat.getAuthStage().close();
                     });
+                }else if(message.startsWith(AUTH_NOT_OK_COMMAND)){
+                    Platform.runLater(() -> {
+                                clientChat.showAuthErrorDialog("Авторизация", "Пользователь уже авторизован!");
+                            }
+                    );
                 }else {
                     Platform.runLater(() -> {
                                 clientChat.showAuthErrorDialog(INVALID_CREDENTIALS, "Пользователя с таким логином и паролем не существует!");

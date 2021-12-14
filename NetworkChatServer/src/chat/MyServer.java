@@ -17,8 +17,6 @@ public class MyServer {
     public void start(int port) {
 
 
-
-
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server has been started");
             authService = new AuthService();
@@ -46,19 +44,18 @@ public class MyServer {
 
     public void broadcastMessage(String message, ClientHandler sender) throws IOException {
         for (ClientHandler client : clients) {
-            if (client != sender){
+            if (client != sender) {
                 client.sendMessage(message);
             }
         }
     }
 
-    public void subscribe(ClientHandler clientHandler){
+    public void subscribe(ClientHandler clientHandler) {
         clients.add(clientHandler);
     }
 
 
-
-    public void unsubscribe(ClientHandler clientHandler){
+    public void unsubscribe(ClientHandler clientHandler) {
         clients.remove(clientHandler);
     }
 
@@ -66,4 +63,25 @@ public class MyServer {
         return authService;
     }
 
+
+
+    public boolean findClient(String username) {
+        for (ClientHandler client : clients) {
+            if (client.getUsername().equals(username)) {
+                return true;
+            }
+
+        }
+        return false;
+    }
+
+
+    public void privateMessage(ClientHandler clientHandler, String username, String msg) throws IOException {
+        for (ClientHandler client : clients){
+            if (client.getUsername().equals(username)){
+                client.sendMessage("от " + clientHandler.getUsername() + ": " + msg);
+                return;
+            }
+        }
+    }
 }

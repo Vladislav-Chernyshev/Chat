@@ -1,6 +1,5 @@
 package chat.auth;
 
-import java.util.Map;
 import java.util.Set;
 
 public class AuthService {
