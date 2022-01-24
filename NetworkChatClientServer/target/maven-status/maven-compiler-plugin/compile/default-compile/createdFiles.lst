@@ -1,0 +1,9 @@
+ru\gb\java2\chat\clientserver\commands\PrivateMessageCommandData.class
+ru\gb\java2\chat\clientserver\commands\UpdateUsersListCommandData.class
+ru\gb\java2\chat\clientserver\commands\AuthCommandData.class
+ru\gb\java2\chat\clientserver\commands\ClientMessageCommandData.class
+ru\gb\java2\chat\clientserver\commands\PublicMessageCommandData.class
+ru\gb\java2\chat\clientserver\commands\AuthOkCommandData.class
+ru\gb\java2\chat\clientserver\Command.class
+ru\gb\java2\chat\clientserver\commands\ErrorCommandData.class
+ru\gb\java2\chat\clientserver\CommandType.class
