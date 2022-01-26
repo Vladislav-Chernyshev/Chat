@@ -1,6 +1,7 @@
-package chat;
+package ru.gb.java2.chat.server.chat;
 
-import chat.auth.AuthService;
+import ru.gb.java2.chat.clientserver.Command;
+import ru.gb.java2.chat.server.chat.auth.AuthService;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -8,24 +9,18 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class MyServer {
 
     private final List<ClientHandler> clients = new ArrayList<>();
     private AuthService authService;
 
     public void start(int port) {
-
-
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server has been started");
             authService = new AuthService();
             while (true) {
                 waitAndProcessNewClientConnection(serverSocket);
-
             }
-
-
         } catch (IOException e) {
             System.err.println("Failed to bind port " + port);
             e.printStackTrace();
@@ -38,50 +33,57 @@ public class MyServer {
         System.out.println("Client has been connected");
         ClientHandler clientHandler = new ClientHandler(this, clientSocket);
         clientHandler.handle();
-
-
     }
 
-    public void broadcastMessage(String message, ClientHandler sender) throws IOException {
+    public synchronized void broadcastMessage(String message, ClientHandler sender) throws IOException {
         for (ClientHandler client : clients) {
             if (client != sender) {
-                client.sendMessage(message);
+                client.sendCommand(Command.clientMessageCommand(sender.getUsername(), message));
             }
         }
     }
 
-    public void subscribe(ClientHandler clientHandler) {
+    public synchronized void subscribe(ClientHandler clientHandler) throws IOException {
         clients.add(clientHandler);
+        notifyClientsUsersListUpdated();
     }
 
-
-    public void unsubscribe(ClientHandler clientHandler) {
+    public synchronized void unsubscribe(ClientHandler clientHandler) throws IOException {
         clients.remove(clientHandler);
+        notifyClientsUsersListUpdated();
     }
 
     public AuthService getAuthService() {
         return authService;
     }
 
-
-
-    public boolean findClient(String username) {
+    public synchronized boolean isUsernameBusy(String username) {
         for (ClientHandler client : clients) {
             if (client.getUsername().equals(username)) {
                 return true;
             }
-
         }
         return false;
     }
 
-
-    public void privateMessage(ClientHandler clientHandler, String username, String msg) throws IOException {
-        for (ClientHandler client : clients){
-            if (client.getUsername().equals(username)){
-                client.sendMessage("от " + clientHandler.getUsername() + ": " + msg);
-                return;
+    public synchronized void sendPrivateMessage(ClientHandler sender, String recipient, String privateMessage) throws IOException {
+        for (ClientHandler client : clients) {
+            if (client != sender && client.getUsername().equals(recipient)) {
+                client.sendCommand(Command.clientMessageCommand(sender.getUsername(), privateMessage));
+                break;
             }
         }
+    }
+
+    private void notifyClientsUsersListUpdated() throws IOException {
+        List<String> users = new ArrayList<>();
+        for (ClientHandler client : clients) {
+            users.add(client.getUsername());
+        }
+
+        for (ClientHandler client : clients) {
+            client.sendCommand(Command.updateUsersListCommand(users));
+        }
+
     }
 }
